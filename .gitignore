@@ -2,6 +2,7 @@
 supabase/
 reports/
 *.orig
+*.prehost-backup
 .env
 .env.*
 node_modules/
@@ -11,13 +12,8 @@ extracted/
 __pycache__/
 *.pyc
 
-# PERSOONSGEGEVENS — bewust niet in deze (publieke) repo.
-# leads-data.json: 247 bestuurdersnamen + LinkedIn-profielen + functies,
-#                  1.183 telefoonnummers, 926 e-mailadressen
-# contacts-enriched.json: 1.160 telefoon, 909 e-mail, 244 executives, 720 socials
-# Voeg ze pas toe als de repo PRIVATE is:
-#   cp <mirror>/site/leads/leads-data.json        leads/
-#   cp <mirror>/site/zoeken/contacts-enriched.json zoeken/
+# PERSOONSGEGEVENS - bewust niet in deze (publieke) repo.
+# Zet de repo op privé en voeg ze toe met:
 #   git add -f leads/leads-data.json zoeken/contacts-enriched.json
 leads/leads-data.json
 zoeken/contacts-enriched.json

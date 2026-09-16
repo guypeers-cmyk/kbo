@@ -16,12 +16,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230D0D0D'/%3E%3Ccircle cx='14' cy='14' r='7' fill='none' stroke='%23F2F2EF' stroke-width='2.5'/%3E%3Cline x1='19.5' y1='19.5' x2='26' y2='26' stroke='%23F2F2EF' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
 <meta name="theme-color" content="#F8F8F6">
-<link rel="canonical" href="https://kbo-verkenner.pages.dev/zoeken/">
+<link rel="canonical" href="https://kbo-ahf.pages.dev/zoeken/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="KBO-verkenner">
 <meta property="og:title" content="KBO Zoektool — Alle 1.956.674 Belgische ondernemingen doorzoeken">
 <meta property="og:description" content="Zoek op bedrijfsnaam, BTW-nummer, straat of gemeente. Filter op sector, rechtsvorm en NACE, bekijk 10 jaar jaarrekeningen.">
-<meta property="og:url" content="https://kbo-verkenner.pages.dev/zoeken/">
+<meta property="og:url" content="https://kbo-ahf.pages.dev/zoeken/">
 <meta property="og:locale" content="nl_BE">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2333,7 +2333,7 @@
 {
   "@context": "https://schema.org",
   "@type": "SearchAction",
-  "target": "https://kbo-verkenner.pages.dev/zoeken/#naam={search_term_string}",
+  "target": "https://kbo-ahf.pages.dev/zoeken/#naam={search_term_string}",
   "query-input": "required name=search_term_string"
 }
 </script>
@@ -2663,25 +2663,14 @@
   function cijfers(s) { return (s || "").replace(/[^0-9]/g, ""); }
 
   function haal(url) {
+    // Cross-origin fallback naar de oude ad35cc75-preview-host verwijderd:
+    // die host bestaat niet meer (NXDOMAIN). Alle /shards/ worden lokaal
+    // geserveerd. De fallback voegde per ontbrekende shard alleen een dode
+    // DNS-lookup toe, en leverde toch een rejection op -- dus het gedrag
+    // blijft gelijk, zonder het wachten.
     return fetch(url).then(function (r) {
-      if (!r.ok) {
-        if (url.indexOf('/shards/') === 0) {
-          return fetch('https://ad35cc75.kbo-verkenner.pages.dev' + url).then(function (r2) {
-            if (!r2.ok) throw new Error('HTTP ' + r2.status);
-            return r2.json();
-          });
-        }
-        throw new Error('HTTP ' + r.status);
-      }
+      if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
-    }).catch(function (err) {
-      if (url.indexOf('/shards/') === 0 && url.indexOf('https://') !== 0) {
-        return fetch('https://ad35cc75.kbo-verkenner.pages.dev' + url).then(function (r2) {
-          if (!r2.ok) throw new Error('HTTP ' + r2.status);
-          return r2.json();
-        });
-      }
-      throw err;
     });
   }
   function cacheHaal(cache, url, sleutel) {
@@ -4132,7 +4121,7 @@
         var pag = doc.internal.getNumberOfPages();
         doc.setFontSize(8);
         doc.setTextColor(130, 137, 146);
-        doc.text("Bron: KBO Open Data (FOD Economie) — kbo-verkenner.pages.dev — deze lijst is een momentopname; raadpleeg de officiële bronnen voor juridische zekerheid.",
+        doc.text("Bron: KBO Open Data (FOD Economie) — kbo-ahf.pages.dev — deze lijst is een momentopname; raadpleeg de officiële bronnen voor juridische zekerheid.",
           40, doc.internal.pageSize.getHeight() - 18);
         doc.text("Blad " + doc.internal.getCurrentPageInfo().pageNumber + " / " + pag,
           doc.internal.pageSize.getWidth() - 90, doc.internal.pageSize.getHeight() - 18);

@@ -47,23 +47,3 @@ Level Security. Zet NOOIT een secret/service key in deze repo.
 Zorg dat `rls-policies.sql` uitgevoerd is voordat deze site publiek gaat:
 zonder dat beleid is `kbo_curated_968` (e-mailadressen, telefoonnummers,
 bestuurdersnamen, LinkedIn-profielen) door iedereen uitleesbaar met dat key.
-
-## Niet in deze repo: twee bestanden met persoonsgegevens
-
-`leads/leads-data.json` en `zoeken/contacts-enriched.json` zijn bewust
-weggelaten zolang deze repo **publiek** is. Ze bevatten persoonsgegevens van
-identificeerbare natuurlijke personen:
-
-| Bestand | Persoonsgegevens |
-|---|---|
-| `leads/leads-data.json` | 247 bestuurdersnamen + functies + LinkedIn-profielen, 1.183 telefoonnummers, 926 e-mailadressen |
-| `zoeken/contacts-enriched.json` | 1.160 telefoonnummers, 909 e-mailadressen, 244 executives, 720 social-media-profielen |
-
-De site blijft werken zonder hen: `/leads/` vangt het ontbreken op met
-`try/catch` en `if (res.ok)`, en `/zoeken/` mist dan alleen de
-verrijkingslaag (kredietlabel, solvabiliteit, megatrend-badges) — het zoeken
-zelf loopt via `/shards/` en werkt gewoon.
-
-Zet de repo op privé (Settings → Danger Zone → Change visibility) en voeg ze
-toe met de commando's in `.gitignore`. Cloudflare Pages werkt identiek met
-een private repo.
