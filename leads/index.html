@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<script>
+(function(){
+  try {
+    var t = localStorage.getItem("kbo-thema") || "origineel";
+    if (t === "normaal" || t === "mist" || t === "kobalt" || t === "licht" || t === "smaragd" || t === "amber" || t === "amethist") t = "origineel";
+    if (t === "donker") t = "obsidian";
+    document.documentElement.setAttribute("data-thema", t);
+  } catch(e) {}
+})();
+</script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230D0D0D'/%3E%3Ccircle cx='14' cy='14' r='7' fill='none' stroke='%23F2F2EF' stroke-width='2.5'/%3E%3Cline x1='19.5' y1='19.5' x2='26' y2='26' stroke='%23F2F2EF' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#F7F9FB">
+<title>B2B Leads Explorer — 100% Landelijke KBO Verrijking | KBO-verkenner</title>
+<meta name="description" content="Landelijke B2B leads database voor alle 569 Belgische gemeenten met geverifieerde e-mails, telefoons, bestuurders en NBB financiële links.">
+
+<style>
+:root {
+  --bg-page: #F7F9FB;
+  --bg-card: #FFFFFF;
+  --text-ink: #1F2733;
+  --text-muted: #475363;
+  --accent: #38557E;
+  --accent-hover: #253F63;
+  --border: #DDE3E8;
+  --badge-bg: #EEF4FA;
+  --badge-text: #203E66;
+  --success-bg: #ECFDF5;
+  --success-text: #065F46;
+  --card-shadow: 0 2px 8px rgba(31, 39, 51, 0.05);
+  --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+[data-thema="robijn"] {
+  --bg-page: #FDF9F9;
+  --bg-card: #FFFFFF;
+  --text-ink: #231217;
+  --text-muted: #5C3D46;
+  --accent: #881337;
+  --accent-hover: #660B24;
+  --border: #FCE7EB;
+  --badge-bg: #FCE7EB;
+  --badge-text: #660B24;
+  --card-shadow: 0 2px 8px rgba(35, 18, 23, 0.05);
+}
+
+[data-thema="petrol"] {
+  --bg-page: #F3F8F9;
+  --bg-card: #FFFFFF;
+  --text-ink: #0E2228;
+  --text-muted: #325159;
+  --accent: #0B4F5E;
+  --accent-hover: #073A45;
+  --border: #DCF0F4;
+  --badge-bg: #DCF0F4;
+  --badge-text: #073A45;
+  --card-shadow: 0 2px 8px rgba(14, 34, 40, 0.05);
+}
+
+[data-thema="grafiet"] {
+  --bg-page: #F8FAFC;
+  --bg-card: #FFFFFF;
+  --text-ink: #090D16;
+  --text-muted: #334155;
+  --accent: #0F172A;
+  --accent-hover: #020617;
+  --border: #E2E8F0;
+  --badge-bg: #E2E8F0;
+  --badge-text: #0F172A;
+  --card-shadow: 0 2px 8px rgba(9, 13, 22, 0.05);
+}
+
+[data-thema="zandsteen"] {
+  --bg-page: #FDFBF7;
+  --bg-card: #FFFFFF;
+  --text-ink: #281E11;
+  --text-muted: #614E36;
+  --accent: #78350F;
+  --accent-hover: #542407;
+  --border: #FEF3C7;
+  --badge-bg: #FEF3C7;
+  --badge-text: #542407;
+  --card-shadow: 0 2px 8px rgba(40, 30, 17, 0.05);
+}
+
+[data-thema="obsidian"] {
+  --bg-page: #0B0F17;
+  --bg-card: #111827;
+  --text-ink: #F8FAFC;
+  --text-muted: #9AA8BD;
+  --accent: #1E40AF;
+  --accent-hover: #1E3A8A;
+  --border: #1E293B;
+  --badge-bg: #1E293B;
+  --badge-text: #93C5FD;
+  --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; touch-action: manipulation; }
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-page);
+  color: var(--text-ink);
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Navigatie */
+.nav-balk {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  gap: 12px;
+}
+.woordmerk {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-ink);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 0;
+}
+.nav-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 8px 12px;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 6px;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+.nav-link:hover, .nav-link.actief {
+  color: var(--accent);
+  background: var(--badge-bg);
+}
+
+.thema-kiezer {
+  display: flex;
+  gap: 3px;
+  background: var(--bg-page);
+  border: 1px solid var(--border);
+  padding: 2px;
+  border-radius: 8px;
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+.thema-btn {
+  background: none;
+  border: none;
+  padding: 6px 8px;
+  min-height: 36px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 6px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.thema-btn.actief {
+  background: var(--bg-card);
+  color: var(--text-ink);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Container */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 16px 20px 40px;
+}
+
+/* Header sectie */
+.header-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  box-shadow: var(--card-shadow);
+}
+.header-card h1 {
+  font-size: clamp(1.35rem, 3.5vw, 1.75rem);
+  color: var(--accent);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.header-card p {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.kpi-rooster {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+.kpi-item {
+  background: var(--bg-page);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+.kpi-waarde {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+.kpi-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+/* Controls */
+.filter-paneel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  box-shadow: var(--card-shadow);
+}
+.zoek-wrapper {
+  flex: 2;
+  min-width: 260px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.zoek-input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 38px 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 16px; /* iOS zoom prevention */
+  background: var(--bg-page);
+  color: var(--text-ink);
+  font-family: inherit;
+}
+.zoek-wis-btn {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px 8px;
+  display: none;
+}
+.keuze-filter {
+  flex: 1;
+  min-width: 150px;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 15px;
+  background: var(--bg-page);
+  color: var(--text-ink);
+  font-family: inherit;
+  cursor: pointer;
+}
+.btn-actie {
+  min-height: 44px;
+  padding: 10px 18px;
+  background: var(--accent);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background 0.15s ease;
+  white-space: nowrap;
+}
+.btn-actie:hover {
+  background: var(--accent-hover);
+}
+
+/* Weergave Desktop Tabel */
+.desktop-view {
+  display: block;
+}
+.mobile-view {
+  display: none;
+}
+
+.tabel-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow-x: auto;
+  box-shadow: var(--card-shadow);
+  -webkit-overflow-scrolling: touch;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  text-align: left;
+}
+th {
+  background: var(--bg-page);
+  color: var(--text-ink);
+  padding: 12px 14px;
+  font-weight: 700;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  word-break: break-word;
+}
+tr:hover {
+  background: var(--bg-page);
+}
+
+/* Badges & Links */
+.badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: var(--badge-bg);
+  color: var(--badge-text);
+  margin-right: 4px;
+  margin-top: 3px;
+}
+.badge-score {
+  background: var(--success-bg);
+  color: var(--success-text);
+  font-weight: 800;
+}
+
+.link-knop {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.84rem;
+  display: inline-block;
+  margin-right: 6px;
+}
+.link-knop:hover {
+  text-decoration: underline;
+}
+
+.tel-link {
+  color: #0284C7;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 0;
+}
+.mail-link {
+  color: #0D9488;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 0;
+  word-break: break-all;
+}
+
+/* Mobiele Kaarten Weergave (< 860px) */
+.lead-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.lead-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: var(--card-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.lead-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+.lead-card-title {
+  font-size: 1.05rem;
+  font-weight: 750;
+  color: var(--text-ink);
+  line-height: 1.3;
+}
+.lead-card-kbo {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-family: monospace;
+}
+.lead-card-locatie {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.lead-card-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 4px;
+}
+.card-btn {
+  min-height: 44px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+}
+.card-btn-tel {
+  background: #E0F2FE;
+  color: #0369A1;
+  border: 1px solid #BAE6FD;
+}
+.card-btn-mail {
+  background: #CCFBF1;
+  color: #0F766E;
+  border: 1px solid #99F6E4;
+}
+.card-btn-web {
+  background: var(--badge-bg);
+  color: var(--badge-text);
+  border: 1px solid var(--border);
+  grid-column: span 2;
+}
+.lead-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Responsiviteit */
+@media (max-width: 860px) {
+  .nav-balk {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 10px 14px;
+    gap: 8px;
+  }
+  .nav-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+  .nav-links {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .thema-kiezer {
+    width: 100%;
+    overflow-x: auto;
+  }
+  .container {
+    padding: 12px 14px 30px;
+  }
+  .filter-paneel {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 14px;
+  }
+  .keuze-filter, .btn-actie {
+    width: 100%;
+  }
+  .desktop-view {
+    display: none;
+  }
+  .mobile-view {
+    display: block;
+  }
+}
+</style>
+</head>
+<body>
+
+<nav class="nav-balk" aria-label="Hoofdnavigatie">
+  <div class="nav-top-row">
+    <a class="woordmerk" href="/">
+      <svg width="24" height="24" viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="2" width="22" height="22" rx="2"/><circle cx="11.5" cy="11.5" r="5"/><line x1="15.5" y1="15.5" x2="21" y2="21"/></svg>
+      KBO·verkenner
+    </a>
+  </div>
+  <div class="nav-links">
+    <a href="/" class="nav-link">Home</a>
+    <a href="/zoeken/" class="nav-link">Zoeken</a>
+    <a href="/dashboard/" class="nav-link">Dashboard</a>
+    <a href="/nieuw/" class="nav-link">Net opgericht</a>
+    <a href="/leads/" class="nav-link actief">B2B Leads</a>
+    <a href="/toegang/" class="nav-link">Toegang</a>
+  </div>
+  <div class="thema-kiezer" role="radiogroup" aria-label="Thema">
+    <button class="thema-btn actief" onclick="setThema('origineel')">🏢 Origineel</button>
+    <button class="thema-btn" onclick="setThema('robijn')">🍷 Robijn</button>
+    <button class="thema-btn" onclick="setThema('petrol')">🌊 Petrol</button>
+    <button class="thema-btn" onclick="setThema('grafiet')">🌑 Grafiet</button>
+    <button class="thema-btn" onclick="setThema('zandsteen')">🏜️ Zandsteen</button>
+    <button class="thema-btn" onclick="setThema('obsidian')">🌙 Donker</button>
+  </div>
+</nav>
+
+<div class="container">
+  <header class="header-card">
+    <h1>🇧🇪 Landelijke B2B High-Yield Leads Explorer</h1>
+    <p>Geverifieerde Belgische bedrijfscontacten voor alle 569 gemeenten. Verrijkt met bestuurdersprofielen, zakelijke e-mails, telefoonlijnen, NBB Balanscentrale en Belgisch Staatsblad koppelingen.</p>
+    
+    <div class="kpi-rooster">
+      <div class="kpi-item">
+        <div class="kpi-waarde" id="kpi-lead-count">1.299</div>
+        <div class="kpi-label">Gekwalificeerde Leads</div>
+      </div>
+      <div class="kpi-item">
+        <div class="kpi-waarde">14.742</div>
+        <div class="kpi-label">Verwerkte Bedrijven</div>
+      </div>
+      <div class="kpi-item">
+        <div class="kpi-waarde">569 / 569</div>
+        <div class="kpi-label">Gemeenten (100%)</div>
+      </div>
+      <div class="kpi-item">
+        <div class="kpi-waarde">100%</div>
+        <div class="kpi-label">Open Data & Gratis</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="filter-paneel">
+    <div class="zoek-wrapper">
+      <input type="text" id="searchInput" class="zoek-input" placeholder="🔍 Zoek op bedrijfsnaam, gemeente, KBO, bestuurder, tel of e-mail..." oninput="handleSearchInput()">
+      <button id="zoekWisBtn" class="zoek-wis-btn" onclick="wisZoek()" aria-label="Zoekopdracht wissen">✕</button>
+    </div>
+    <select id="provFilter" class="keuze-filter" onchange="filterData()">
+      <option value="">Alle Provincies (11)</option>
+      <option value="Antwerpen">Antwerpen</option>
+      <option value="Brussels">Brussels</option>
+      <option value="Hainaut">Hainaut</option>
+      <option value="Liège">Liège</option>
+      <option value="Limburg">Limburg</option>
+      <option value="Luxembourg">Luxembourg</option>
+      <option value="Namur">Namur</option>
+      <option value="Oost-Vlaanderen">Oost-Vlaanderen</option>
+      <option value="Vlaams-Brabant">Vlaams-Brabant</option>
+      <option value="Brabant Wallon">Brabant Wallon</option>
+      <option value="West-Vlaanderen">West-Vlaanderen</option>
+    </select>
+    <select id="scoreFilter" class="keuze-filter" onchange="filterData()">
+      <option value="0">Alle Lead Scores</option>
+      <option value="50">Score >= 50 (Gekwalificeerd)</option>
+      <option value="75">Score >= 75 (Top Kwaliteit)</option>
+    </select>
+    <button class="btn-actie" onclick="exporteerCSV()">📥 Exporteer CSV</button>
+  </div>
+
+  <!-- Desktop Weergave (Tabel) -->
+  <div class="desktop-view">
+    <div class="tabel-container">
+      <table id="leadsTabel">
+        <thead>
+          <tr>
+            <th>Onderneming</th>
+            <th>KBO / Identificatie</th>
+            <th>Vestiging & Hub</th>
+            <th>Sector & Megatrend</th>
+            <th>Direct Contact</th>
+            <th>Bestuurder / Directie</th>
+            <th>Lead Score</th>
+            <th>Overheidsbronnen</th>
+          </tr>
+        </thead>
+        <tbody id="tabelBody">
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Mobiele Weergave (Kaarten) -->
+  <div class="mobile-view">
+    <div id="cardsList" class="lead-cards-list">
+    </div>
+  </div>
+</div>
+
+<script>
+let leadsData = [];
+
+function setThema(thema) {
+  document.documentElement.setAttribute("data-thema", thema);
+  try { localStorage.setItem("kbo-thema", thema); } catch(e){}
+  document.querySelectorAll('.thema-btn').forEach(btn => {
+    btn.classList.toggle('actief', btn.getAttribute('onclick').includes(thema));
+  });
+}
+
+async function loadData() {
+  try {
+    const res = await fetch('/leads/leads-data.json');
+    if (res.ok) {
+      const json = await res.json();
+      leadsData = json.leads || [];
+      renderAll(leadsData);
+    }
+  } catch (err) {
+    console.warn("Kon leads-data.json niet laden, fallback...");
+  }
+}
+
+function renderAll(lijst) {
+  renderDesktopTabel(lijst);
+  renderMobileCards(lijst);
+  document.getElementById('kpi-lead-count').innerText = lijst.length.toLocaleString('nl-BE');
+}
+
+function renderDesktopTabel(lijst) {
+  const tbody = document.getElementById('tabelBody');
+  tbody.innerHTML = '';
+
+  lijst.forEach(item => {
+    const tr = document.createElement('tr');
+
+    let contactHtml = '';
+    if (item.primaire_telefoon) {
+      contactHtml += `<div>📞 <a class="tel-link" href="tel:${item.primaire_telefoon}">${item.primaire_telefoon}</a></div>`;
+    }
+    if (item.primaire_email) {
+      contactHtml += `<div>✉️ <a class="mail-link" href="mailto:${item.primaire_email}">${item.primaire_email}</a></div>`;
+    }
+    if (item.website) {
+      contactHtml += `<div>🌐 <a class="link-knop" href="${item.website}" target="_blank" rel="noopener">Website ↗</a></div>`;
+    }
+    if (!contactHtml) contactHtml = '<span style="color:var(--text-muted);font-size:0.85rem;">Geen direct contact</span>';
+
+    let bestuurderHtml = '';
+    if (item.eerste_bestuurder_naam) {
+      bestuurderHtml = `<strong>${item.eerste_bestuurder_naam}</strong><br><small style="color:var(--text-muted);">${item.eerste_bestuurder_functie || 'Bestuurder'}</small>`;
+      if (item.linkedin_directeur_link) {
+        bestuurderHtml += `<br><a class="link-knop" href="${item.linkedin_directeur_link}" target="_blank" rel="noopener" style="font-size:0.75rem;">🔗 LinkedIn</a>`;
+      }
+    } else {
+      bestuurderHtml = '<span style="color:var(--text-muted);font-size:0.85rem;">Niet geregistreerd</span>';
+    }
+
+    tr.innerHTML = `
+      <td>
+        <strong>${item.bedrijfsnaam || 'Onderneming'}</strong>
+        <br><span class="badge">${item.rechtsvorm || 'BV'}</span>
+        <span style="font-size:0.75rem; color:var(--text-muted);">${item.levenscyclus || ''}</span>
+      </td>
+      <td>
+        <code>${item.kbo_geformatteerd || item.kbo_nummer}</code>
+        <br><small style="color:var(--text-muted);">EORI: BE${item.kbo_nummer}</small>
+      </td>
+      <td>
+        ${item.adres}<br>
+        <strong style="color:var(--accent);">${item.gemeente}</strong> (${item.provincie})
+      </td>
+      <td>
+        <strong>${item.sector}</strong><br>
+        <small style="color:var(--text-muted);">${item.megatrend || 'KMO'}</small>
+      </td>
+      <td>${contactHtml}</td>
+      <td>${bestuurderHtml}</td>
+      <td>
+        <span class="badge badge-score">${item.lead_score} / 100</span>
+      </td>
+      <td>
+        <a class="link-knop" href="${item.nbb_jaarrekening_link}" target="_blank" rel="noopener">📄 NBB Balans</a><br>
+        <a class="link-knop" href="${item.staatsblad_link}" target="_blank" rel="noopener">🏛️ Staatsblad</a><br>
+        <a class="link-knop" href="${item.google_maps_link}" target="_blank" rel="noopener">📍 Kaart</a>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderMobileCards(lijst) {
+  const container = document.getElementById('cardsList');
+  container.innerHTML = '';
+
+  if (!lijst.length) {
+    container.innerHTML = '<div class="header-card" style="text-align:center;padding:24px;"><p>Geen leads gevonden die voldoen aan de filters.</p></div>';
+    return;
+  }
+
+  lijst.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'lead-card';
+
+    let actionsHtml = '';
+    if (item.primaire_telefoon) {
+      actionsHtml += `<a href="tel:${item.primaire_telefoon}" class="card-btn card-btn-tel">📞 Bellen</a>`;
+    }
+    if (item.primaire_email) {
+      actionsHtml += `<a href="mailto:${item.primaire_email}" class="card-btn card-btn-mail">✉️ E-mail</a>`;
+    }
+    if (item.website) {
+      actionsHtml += `<a href="${item.website}" target="_blank" rel="noopener" class="card-btn card-btn-web">🌐 Website bezoeken ↗</a>`;
+    }
+
+    card.innerHTML = `
+      <div class="lead-card-header">
+        <div>
+          <div class="lead-card-title">${item.bedrijfsnaam || 'Onderneming'}</div>
+          <div class="lead-card-kbo">${item.kbo_geformatteerd || item.kbo_nummer} · <span class="badge">${item.rechtsvorm || 'BV'}</span></div>
+        </div>
+        <span class="badge badge-score" style="flex-shrink:0;">${item.lead_score}/100</span>
+      </div>
+
+      <div class="lead-card-locatie">
+        📍 <strong>${item.gemeente}</strong> (${item.provincie}) · <span style="font-size:0.8rem;">${item.sector}</span>
+      </div>
+
+      ${item.eerste_bestuurder_naam ? `
+        <div style="font-size:0.85rem; background:var(--bg-page); padding:8px 10px; border-radius:6px; border:1px solid var(--border);">
+          👔 <strong>${item.eerste_bestuurder_naam}</strong> (${item.eerste_bestuurder_functie || 'Bestuurder'})
+          ${item.linkedin_directeur_link ? ` · <a href="${item.linkedin_directeur_link}" target="_blank" rel="noopener" class="link-knop" style="font-size:0.75rem;">LinkedIn ↗</a>` : ''}
+        </div>
+      ` : ''}
+
+      ${actionsHtml ? `<div class="lead-card-actions">${actionsHtml}</div>` : ''}
+
+      <div class="lead-card-footer">
+        <div>
+          <a href="${item.nbb_jaarrekening_link}" target="_blank" rel="noopener" class="link-knop">📄 Balans</a>
+          <a href="${item.staatsblad_link}" target="_blank" rel="noopener" class="link-knop">🏛️ Staatsblad</a>
+          <a href="${item.google_maps_link}" target="_blank" rel="noopener" class="link-knop">📍 Kaart</a>
+        </div>
+        <span style="font-size:0.75rem;">${item.levenscyclus || ''}</span>
+      </div>
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+function handleSearchInput() {
+  const val = document.getElementById('searchInput').value;
+  document.getElementById('zoekWisBtn').style.display = val ? 'block' : 'none';
+  filterData();
+}
+
+function wisZoek() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('zoekWisBtn').style.display = 'none';
+  filterData();
+}
+
+function filterData() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  const prov = document.getElementById('provFilter').value.toLowerCase();
+  const minScore = parseInt(document.getElementById('scoreFilter').value, 10) || 0;
+
+  const gefilterd = leadsData.filter(item => {
+    const matchQ = !q || 
+      (item.bedrijfsnaam && item.bedrijfsnaam.toLowerCase().includes(q)) ||
+      (item.gemeente && item.gemeente.toLowerCase().includes(q)) ||
+      (item.kbo_nummer && item.kbo_nummer.includes(q)) ||
+      (item.sector && item.sector.toLowerCase().includes(q)) ||
+      (item.eerste_bestuurder_naam && item.eerste_bestuurder_naam.toLowerCase().includes(q)) ||
+      (item.alle_telefoons && item.alle_telefoons.includes(q)) ||
+      (item.alle_emails && item.alle_emails.toLowerCase().includes(q));
+
+    const matchProv = !prov || (item.provincie && item.provincie.toLowerCase().includes(prov));
+    const matchScore = item.lead_score >= minScore;
+
+    return matchQ && matchProv && matchScore;
+  });
+
+  renderAll(gefilterd);
+}
+
+function exporteerCSV() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  const prov = document.getElementById('provFilter').value.toLowerCase();
+  const minScore = parseInt(document.getElementById('scoreFilter').value, 10) || 0;
+
+  const gefilterd = leadsData.filter(item => {
+    const matchQ = !q || 
+      (item.bedrijfsnaam && item.bedrijfsnaam.toLowerCase().includes(q)) ||
+      (item.gemeente && item.gemeente.toLowerCase().includes(q)) ||
+      (item.kbo_nummer && item.kbo_nummer.includes(q)) ||
+      (item.sector && item.sector.toLowerCase().includes(q));
+    const matchProv = !prov || (item.provincie && item.provincie.toLowerCase().includes(prov));
+    const matchScore = item.lead_score >= minScore;
+    return matchQ && matchProv && matchScore;
+  });
+
+  if (!gefilterd.length) return alert('Geen resultaten om te exporteren.');
+
+  const headers = Object.keys(gefilterd[0]);
+  let csvContent = "\uFEFF" + headers.join(";") + "\n";
+
+  gefilterd.forEach(row => {
+    const values = headers.map(h => {
+      let v = row[h] === null || row[h] === undefined ? "" : String(row[h]);
+      v = v.replace(/"/g, '""');
+      return `"${v}"`;
+    });
+    csvContent += values.join(";") + "\n";
+  });
+
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `kbo_b2b_leads_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// Initialiseer data
+loadData();
+</script>
+</body>
+</html>

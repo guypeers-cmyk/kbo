@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /shards/
+Disallow: /api/
+Disallow: /home/
+Disallow: /adres/
+Disallow: /data/
+
+Sitemap: https://kbo-verkenner.pages.dev/sitemap.xml

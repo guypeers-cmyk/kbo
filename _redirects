@@ -1,0 +1,12 @@
+# Repliceert het huidige live gedrag van kbo-verkenner-bj9: elk onbekend pad
+# geeft 200 + de homepage. Nodig omdat de navigatie naar /gemeente/ linkt,
+# dat geen echte pagina heeft en alleen via deze catch-all "werkt".
+#
+# BESTAAND NADEEL (niet geïntroduceerd door deze deploy): elk onbekend URL
+# antwoordt 200 met homepage-content i.p.v. 404 — voor Google een
+# onbeperkte voorraad soft-404s, en /gemeente/ staat in sitemap.xml terwijl
+# het niet bestaat. Proper oplossen:
+#     /*    /404.html    404
+# plus een echte 404.html en een echte /gemeente/ indexpagina.
+# Hier bewust onaangeroerd gelaten zodat deze deploy niets verandert.
+/*    /index.html   200
