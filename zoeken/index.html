@@ -2592,6 +2592,14 @@
   var pdfBtn = document.getElementById("naar-pdf");
   var scanMeerBtn = document.getElementById("scan-meer");
   var filterTel = document.getElementById("filter-tel");
+  /* chipsEl werd op 3 plaatsen gebruikt (aantalActieveFilters) maar nergens
+     gedeclareerd. Een niet-gedeclareerde identifier LEZEN gooit een
+     ReferenceError, dus elke geslaagde zoekopdracht strandde in de
+     .catch(function(){}) van bepaalResultaat en toonde "Laden van
+     zoekgegevens mislukt" -- terwijl de data wel gewoon binnenkwam.
+     Op de oorspronkelijke site viel dit niet op omdat daar de /shards/
+     ontbraken en de zoekopdracht al eerder faalde. */
+  var chipsEl = document.getElementById("filter-chips");
   var selRv = document.getElementById("f-rechtsvorm");
   var selSt = document.getElementById("f-status");
   var selSec = document.getElementById("f-sector");
@@ -2719,7 +2727,7 @@
   /* ================= criteria-rijen (dropdown-velden) ================= */
   function leesCriteria() {
     var uit = { naamTok: [], nd: "", straatTok: [], straatMatch: [], gemTok: [], gemMatch: [],
-                stopAlleenLocatie: false, actief: false };
+                boxStraatTok: [], stopAlleenLocatie: false, actief: false };
     var query = inpNaam.value.trim();
     var dig = cijfers(query);
 
@@ -2729,7 +2737,9 @@
       if (query.length >= 2) {
         uit.naamTok = tokens(query);
         uit.straatMatch = tokens(query);
-        uit.straatTok = indexTokens(query);
+        /* Tokens van het grote zoekveld horen NIET in straatTok: dat veld is de
+           EN-filter van het aparte straatveld. Zie boxStraatTok hieronder. */
+        uit.boxStraatTok = indexTokens(query);
       }
       if (!uit.naamTok.length && dig.length >= 4) uit.nd = dig;
     }
@@ -2747,7 +2757,7 @@
       if (gm) { uit.gemMatch = tokens(gm); uit.gemTok = indexTokens(gm); }
     }
 
-    uit.stopAlleenLocatie = (uit.straatMatch.length && !uit.straatTok.length) ||
+    uit.stopAlleenLocatie = (uit.straatMatch.length && !uit.straatTok.length && !uit.boxStraatTok.length) ||
                             (uit.gemMatch.length && !uit.gemTok.length);
     uit.actief = !!(uit.naamTok.length || uit.nd || uit.straatMatch.length || uit.gemMatch.length);
     return uit;
@@ -2774,7 +2784,27 @@
         return uit;
       }));
     } else {
-      if (crit.naamTok.length) taken.push(zoekSet(crit.naamTok, 3, haalNaamShard));
+      /* Het grote zoekveld zoekt bedrijfsnaam ÓF straat — de placeholder
+         belooft "Luminus, 0471.811.661, Colruyt…" — dus die twee sets worden
+         GEÜNIONEERD. De aparte velden straat en gemeente blijven EN-filters.
+
+         Voorheen gingen de tokens van het grote veld in zowel naamTok als
+         straatTok en werden beide sets doorsneden ("EN over criteria"). Een
+         gewone bedrijfsnaam gaf dan 0 resultaten, omdat hij zelden ook een
+         straat is: "colruyt" en "luminus" vielen weg terwijl "gent" wél
+         werkte (bestaat als naam, straat en gemeente). */
+      var boxSets = [];
+      if (crit.naamTok.length) boxSets.push(zoekSet(crit.naamTok, 3, haalNaamShard));
+      if (crit.boxStraatTok.length) boxSets.push(zoekSet(crit.boxStraatTok, 2, haalStraatShard));
+      if (boxSets.length === 1) {
+        taken.push(boxSets[0]);
+      } else if (boxSets.length > 1) {
+        taken.push(Promise.all(boxSets).then(function (sets) {
+          var unie = {};
+          sets.forEach(function (s) { s.forEach(function (d) { unie[d] = true; }); });
+          return Object.keys(unie);
+        }));
+      }
       if (crit.straatTok.length) taken.push(zoekSet(crit.straatTok, 2, haalStraatShard));
       if (crit.gemTok.length) taken.push(zoekSet(crit.gemTok, 1, haalGemShard));
     }
